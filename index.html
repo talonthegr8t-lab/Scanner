@@ -3,52 +3,275 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Barcode Price Scanner & Cart</title>
+  <title>Barcode Price Scanner & Register</title>
   <style>
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { margin: 0; padding: 16px; background: #f4f6f8; color: #1a1a1a; max-width: 600px; margin-inline: auto; }
-    h1 { font-size: 1.4rem; margin-top: 0; text-align: center; }
-    .card { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 16px; }
-    
-    #scanner-container { position: relative; width: 100%; height: 240px; background: #000; border-radius: 8px; overflow: hidden; display: none; margin-top: 12px; }
-    #scanner-video { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .scan-line { position: absolute; top: 50%; left: 10%; right: 10%; height: 2px; background: #ff3b30; box-shadow: 0 0 8px #ff3b30; z-index: 10; pointer-events: none; }
+    * {
+      box-sizing: border-box;
+      font-family: "Courier New", Courier, "Lucida Console", monospace;
+    }
+    body {
+      margin: 0;
+      padding: 16px;
+      background-color: #e6dec8;
+      background-image: radial-gradient(#d3c7a8 1px, transparent 1px);
+      background-size: 16px 16px;
+      color: #2c241b;
+      max-width: 600px;
+      margin-inline: auto;
+    }
+    h1 {
+      font-size: 1.35rem;
+      margin: 0 0 14px 0;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #3a2d1d;
+      border-bottom: 2px dashed #8c7a5b;
+      padding-bottom: 10px;
+    }
+    .card {
+      background: #fdfaf1;
+      border: 2px solid #8c7a5b;
+      border-radius: 4px;
+      padding: 14px;
+      box-shadow: 4px 4px 0px #b5a689;
+      margin-bottom: 18px;
+    }
 
-    button { background: #007aff; color: #fff; border: none; padding: 12px 16px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; width: 100%; }
-    button:active { opacity: 0.85; }
-    button.secondary { background: #e5e5ea; color: #1a1a1a; }
-    button.danger { background: #ff3b30; padding: 6px 10px; font-size: 0.85rem; width: auto; }
-    
-    .form-group { margin-bottom: 12px; }
-    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: #555; }
-    input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; }
-    .row { display: flex; gap: 8px; }
+    /* Camera Viewport */
+    #scanner-container {
+      position: relative;
+      width: 100%;
+      height: 240px;
+      background: #1a1815;
+      border: 2px solid #5c4e38;
+      border-radius: 3px;
+      overflow: hidden;
+      display: none;
+      margin-top: 12px;
+    }
+    #scanner-container video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .scan-line {
+      position: absolute;
+      top: 50%;
+      left: 8%;
+      right: 8%;
+      height: 2px;
+      background: #b83227;
+      box-shadow: 0 0 6px #b83227;
+      z-index: 10;
+      pointer-events: none;
+    }
 
-    .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
-    .cart-item:last-child { border-bottom: none; }
-    .item-info { flex: 1; }
-    .item-name { font-weight: 600; }
-    .item-meta { font-size: 0.85rem; color: #666; }
-    .total-bar { display: flex; justify-content: space-between; font-size: 1.25rem; font-weight: 700; padding-top: 12px; border-top: 2px solid #1a1a1a; margin-top: 12px; }
-    .status { font-size: 0.85rem; color: #007aff; margin-top: 8px; text-align: center; min-height: 1.2em; }
-    .warning-box { background: #fff3cd; color: #856404; padding: 10px; border-radius: 8px; font-size: 0.85rem; margin-top: 8px; display: none; }
+    /* Retro Buttons & Inputs */
+    button {
+      background: #4b6043;
+      color: #fdfaf1;
+      border: 2px solid #2e3b29;
+      padding: 10px 14px;
+      border-radius: 3px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      width: 100%;
+      box-shadow: 2px 2px 0px #2e3b29;
+    }
+    button:active {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0px #2e3b29;
+    }
+    button.secondary {
+      background: #d8ccb4;
+      color: #2c241b;
+      border-color: #7d6d53;
+      box-shadow: 2px 2px 0px #7d6d53;
+    }
+    button.danger {
+      background: #a8382b;
+      border-color: #6b2118;
+      box-shadow: 1px 1px 0px #6b2118;
+      padding: 4px 8px;
+      font-size: 0.8rem;
+      width: auto;
+    }
+
+    .form-group {
+      margin-bottom: 11px;
+    }
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      color: #5c4e38;
+    }
+    input {
+      width: 100%;
+      padding: 8px 10px;
+      background: #fffdf7;
+      border: 1px solid #8c7a5b;
+      border-radius: 2px;
+      font-size: 0.95rem;
+      color: #2c241b;
+    }
+    input:focus {
+      outline: 2px solid #4b6043;
+      background: #ffffff;
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+
+    /* Scanned Item Preview Box */
+    #item-preview {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      background: #f4eee0;
+      border: 1px dashed #8c7a5b;
+      padding: 10px;
+      margin-bottom: 12px;
+      border-radius: 3px;
+    }
+    #preview-img {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+      background: #fff;
+      border: 1px solid #b5a689;
+      padding: 2px;
+      flex-shrink: 0;
+    }
+    .preview-details {
+      flex: 1;
+      min-width: 0;
+    }
+    .preview-title {
+      font-weight: bold;
+      font-size: 0.95rem;
+      color: #2c241b;
+      margin-bottom: 4px;
+      word-wrap: break-word;
+    }
+    .preview-price-tag {
+      display: inline-block;
+      background: #e6dec8;
+      border: 1px solid #8c7a5b;
+      padding: 2px 6px;
+      font-size: 0.82rem;
+      font-weight: bold;
+      color: #3a2d1d;
+    }
+
+    /* Receipt / Cart Section */
+    .receipt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px dashed #8c7a5b;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+    }
+    .cart-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px dashed #c4b69c;
+    }
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+    .cart-thumb {
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+      background: #fff;
+      border: 1px solid #b5a689;
+      padding: 2px;
+      flex-shrink: 0;
+    }
+    .cart-thumb-placeholder {
+      width: 44px;
+      height: 44px;
+      background: #ebe3d1;
+      border: 1px solid #b5a689;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      color: #7d6d53;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .item-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .item-name {
+      font-weight: bold;
+      font-size: 0.95rem;
+      word-wrap: break-word;
+    }
+    .item-meta {
+      font-size: 0.82rem;
+      color: #5c4e38;
+      margin-top: 2px;
+    }
+    .total-bar {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.2rem;
+      font-weight: bold;
+      padding-top: 10px;
+      border-top: 2px dashed #8c7a5b;
+      margin-top: 10px;
+      color: #2c241b;
+    }
+    .status {
+      font-size: 0.82rem;
+      color: #4b6043;
+      font-weight: bold;
+      margin-top: 8px;
+      text-align: center;
+      min-height: 1.2em;
+    }
   </style>
 </head>
 <body>
 
-  <h1>Barcode Scanner & Cart</h1>
+  <h1>[ Price Checker & Register ]</h1>
 
+  <!-- Scanner Section -->
   <div class="card">
     <button id="toggle-scan-btn">Start Camera Scanner</button>
     <div id="scanner-container">
-      <video id="scanner-video" autoplay playsinline muted></video>
+      <video id="camera-video" playsinline autoplay muted></video>
       <div class="scan-line"></div>
     </div>
-    <div id="status-msg" class="status"></div>
-    <div id="warning-msg" class="warning-box"></div>
+    <div id="status-msg" class="status">Ready to scan or enter item below.</div>
   </div>
 
+  <!-- Item Entry / Scanned Item Details -->
   <div class="card">
+    <!-- Live Item Card Preview -->
+    <div id="item-preview">
+      <img id="preview-img" src="" alt="Item image">
+      <div class="preview-details">
+        <div id="preview-name" class="preview-title">Item Name</div>
+        <div id="preview-price" class="preview-price-tag">Price: Not set</div>
+      </div>
+    </div>
+
     <div class="form-group">
       <label>Barcode / SKU</label>
       <input type="text" id="barcode-input" placeholder="Scan or type barcode...">
@@ -67,19 +290,21 @@
         <input type="number" id="qty-input" value="1" min="1">
       </div>
     </div>
-    <button id="add-btn">Add to Cart</button>
+    <input type="hidden" id="image-url-input" value="">
+    <button id="add-btn">+ Add Item to Receipt</button>
   </div>
 
+  <!-- Shopping Cart / Receipt Section -->
   <div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-      <h2 style="margin: 0; font-size: 1.1rem;">Your Cart</h2>
-      <button id="clear-btn" class="secondary" style="width: auto; padding: 6px 12px; font-size: 0.85rem;">Clear All</button>
+    <div class="receipt-header">
+      <h2 style="margin: 0; font-size: 1.05rem; text-transform: uppercase;">Itemized Receipt</h2>
+      <button id="clear-btn" class="secondary" style="width: auto; padding: 4px 10px; font-size: 0.8rem;">Clear</button>
     </div>
     <div id="cart-list">
-      <p style="color: #888; text-align: center; font-size: 0.9rem;">Cart is empty. Scan an item to begin.</p>
+      <p style="color: #7d6d53; text-align: center; font-size: 0.85rem;">Receipt is empty. Scan an item to begin.</p>
     </div>
     <div class="total-bar">
-      <span>Total:</span>
+      <span>TOTAL DUE:</span>
       <span id="cart-total">$0.00</span>
     </div>
   </div>
@@ -90,18 +315,62 @@
     let scanInterval = null;
     let barcodeDetector = null;
 
-    let cart = JSON.parse(localStorage.getItem('scanner_cart') || '[]');
-    let priceMemory = JSON.parse(localStorage.getItem('price_memory') || '{}');
+    let cart = JSON.parse(localStorage.getItem('retro_scanner_cart')) || [];
+    let itemMemory = JSON.parse(localStorage.getItem('retro_item_memory')) || {};
 
     const toggleBtn = document.getElementById('toggle-scan-btn');
     const scannerContainer = document.getElementById('scanner-container');
-    const videoEl = document.getElementById('scanner-video');
+    const videoEl = document.getElementById('camera-video');
     const statusMsg = document.getElementById('status-msg');
-    const warningMsg = document.getElementById('warning-msg');
+
+    const itemPreview = document.getElementById('item-preview');
+    const previewImg = document.getElementById('preview-img');
+    const previewName = document.getElementById('preview-name');
+    const previewPrice = document.getElementById('preview-price');
+
     const barcodeInput = document.getElementById('barcode-input');
     const nameInput = document.getElementById('name-input');
     const priceInput = document.getElementById('price-input');
     const qtyInput = document.getElementById('qty-input');
+    const imageUrlInput = document.getElementById('image-url-input');
+
+    // Sync live preview when typing manually
+    nameInput.addEventListener('input', updatePreviewCard);
+    priceInput.addEventListener('input', updatePreviewCard);
+
+    function updatePreviewCard() {
+      const nameVal = nameInput.value.trim();
+      const priceVal = parseFloat(priceInput.value);
+      const imgVal = imageUrlInput.value.trim();
+
+      if (!nameVal && isNaN(priceVal) && !imgVal) {
+        itemPreview.style.display = 'none';
+        return;
+      }
+
+      itemPreview.style.display = 'flex';
+      previewName.textContent = nameVal || 'Unnamed Item';
+
+      if (!isNaN(priceVal) && priceVal >= 0) {
+        previewPrice.textContent = `Price: $${priceVal.toFixed(2)}`;
+      } else {
+        previewPrice.textContent = 'Price: Enter below';
+      }
+
+      if (imgVal) {
+        previewImg.src = imgVal;
+        previewImg.style.display = 'block';
+      } else {
+        previewImg.style.display = 'none';
+      }
+    }
+
+    // Initialize native BarcodeDetector if supported
+    if ('BarcodeDetector' in window) {
+      barcodeDetector = new BarcodeDetector({
+        formats: ['upc_a', 'upc_e', 'ean_13', 'ean_8', 'code_128', 'code_39', 'qr_code']
+      });
+    }
 
     toggleBtn.addEventListener('click', () => {
       if (isScanning) {
@@ -112,39 +381,34 @@
     });
 
     async function startScanner() {
-      warningMsg.style.display = 'none';
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        warningMsg.style.display = 'block';
-        warningMsg.textContent = 'Camera API blocked. Make sure you are opening this site via HTTPS (like GitHub Pages) and not as a local file.';
+        statusMsg.textContent = 'Camera blocked. Host via HTTPS (GitHub Pages) to use camera.';
         return;
       }
 
-      scannerContainer.style.display = 'block';
-      toggleBtn.textContent = 'Stop Camera';
-      toggleBtn.classList.add('secondary');
-      statusMsg.textContent = 'Requesting camera access...';
-
       try {
+        statusMsg.textContent = 'Requesting camera access...';
         videoStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: 'environment' } },
+          video: { facingMode: 'environment' },
           audio: false
         });
+
         videoEl.srcObject = videoStream;
         await videoEl.play();
+
+        scannerContainer.style.display = 'block';
+        toggleBtn.textContent = 'Stop Camera';
+        toggleBtn.classList.add('secondary');
         isScanning = true;
 
-        if ('BarcodeDetector' in window) {
-          barcodeDetector = new BarcodeDetector({
-            formats: ['upc_a', 'upc_e', 'ean_13', 'ean_8', 'code_128', 'code_39', 'qr_code']
-          });
-          statusMsg.textContent = 'Point camera at a barcode...';
-          scanInterval = setInterval(detectFrame, 400);
+        if (barcodeDetector) {
+          statusMsg.textContent = 'Camera active. Align barcode with red line...';
+          scanInterval = setInterval(detectFrame, 350);
         } else {
-          statusMsg.textContent = 'Camera active! (Auto-barcode reading not supported in this browser; type barcode below).';
+          statusMsg.textContent = 'Camera active (auto-scan unsupported on this browser; type barcode below).';
         }
       } catch (err) {
-        warningMsg.style.display = 'block';
-        warningMsg.textContent = 'Camera error: ' + err.message + '. Check browser camera permissions and ensure you are on HTTPS.';
+        statusMsg.textContent = 'Camera error: ' + err.message;
         stopScanner();
       }
     }
@@ -163,26 +427,22 @@
       scannerContainer.style.display = 'none';
       toggleBtn.textContent = 'Start Camera Scanner';
       toggleBtn.classList.remove('secondary');
-      statusMsg.textContent = '';
     }
-
-    let lastScannedCode = '';
-    let lastScanTime = 0;
 
     async function detectFrame() {
       if (!isScanning || !barcodeDetector || videoEl.readyState < 2) return;
       try {
         const barcodes = await barcodeDetector.detect(videoEl);
         if (barcodes.length > 0) {
-          const code = barcodes[0].rawValue;
-          if (code) {
-            handleBarcodeDetected(code);
-          }
+          handleBarcodeDetected(barcodes[0].rawValue);
         }
       } catch (e) {}
     }
 
-    function handleBarcodeDetected(code) {
+    let lastScannedCode = '';
+    let lastScanTime = 0;
+
+    async function handleBarcodeDetected(code) {
       const now = Date.now();
       if (code === lastScannedCode && now - lastScanTime < 2500) return;
       lastScannedCode = code;
@@ -190,23 +450,76 @@
 
       playBeep();
       barcodeInput.value = code;
+      statusMsg.textContent = `Scanned [${code}] — Searching records...`;
 
-      if (priceMemory[code]) {
-        nameInput.value = priceMemory[code].name;
-        priceInput.value = priceMemory[code].price;
-        statusMsg.textContent = 'Loaded saved item: ' + priceMemory[code].name;
-      } else {
-        nameInput.value = 'Item #' + code;
-        statusMsg.textContent = 'Scanned ' + code + '! Enter name and price below.';
+      // 1. Check saved local memory first (includes previously saved price & image)
+      if (itemMemory[code]) {
+        nameInput.value = itemMemory[code].name || '';
+        priceInput.value = itemMemory[code].price || '';
+        imageUrlInput.value = itemMemory[code].image || '';
+        updatePreviewCard();
+        statusMsg.textContent = `Loaded saved item: ${itemMemory[code].name}`;
+        return;
+      }
+
+      // 2. Query Open Food Facts / Open Products API for name, image, and any listed price
+      try {
+        const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${encodeURIComponent(code)}.json`);
+        const json = await res.json();
+
+        if (json.status === 1 && json.product) {
+          const prod = json.product;
+          const foundName = prod.product_name || prod.product_name_en || `Item #${code}`;
+          const foundImage = prod.image_front_small_url || prod.image_url || '';
+          // Check if a community price field exists on the product record
+          const foundPrice = prod.price ? parseFloat(prod.price) : NaN;
+
+          nameInput.value = foundName;
+          imageUrlInput.value = foundImage;
+
+          if (!isNaN(foundPrice) && foundPrice > 0) {
+            priceInput.value = foundPrice.toFixed(2);
+            statusMsg.textContent = `Found: ${foundName} ($${foundPrice.toFixed(2)})`;
+          } else {
+            priceInput.value = '';
+            statusMsg.textContent = `Found: ${foundName}. Enter price below.`;
+          }
+          updatePreviewCard();
+        } else {
+          nameInput.value = `Item #${code}`;
+          imageUrlInput.value = '';
+          priceInput.value = '';
+          updatePreviewCard();
+          statusMsg.textContent = `Code ${code} not in database. Enter name & price.`;
+        }
+      } catch (e) {
+        nameInput.value = `Item #${code}`;
+        imageUrlInput.value = '';
+        updatePreviewCard();
+        statusMsg.textContent = `Lookup unavailable. Enter details manually.`;
+      }
+
+      if (!priceInput.value) {
         priceInput.focus();
       }
     }
 
+    // Lookup button / Enter key on barcode field
+    barcodeInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && barcodeInput.value.trim()) {
+        e.preventDefault();
+        lastScannedCode = '';
+        handleBarcodeDetected(barcodeInput.value.trim());
+      }
+    });
+
+    // Add item to receipt
     document.getElementById('add-btn').addEventListener('click', () => {
       const code = barcodeInput.value.trim() || 'MANUAL-' + Date.now();
       const name = nameInput.value.trim() || 'Unnamed Item';
       const price = parseFloat(priceInput.value);
-      const qty = parseInt(qtyInput.value, 10) || 1;
+      const qty = parseInt(qtyInput.value) || 1;
+      const image = imageUrlInput.value.trim();
 
       if (isNaN(price) || price < 0) {
         alert('Please enter a valid price.');
@@ -214,23 +527,32 @@
         return;
       }
 
-      priceMemory[code] = { name, price: price.toFixed(2) };
-      localStorage.setItem('price_memory', JSON.stringify(priceMemory));
+      // Save to memory so next scan remembers name, price, and image
+      itemMemory[code] = {
+        name,
+        price: price.toFixed(2),
+        image
+      };
+      localStorage.setItem('retro_item_memory', JSON.stringify(itemMemory));
 
       const existing = cart.find(item => item.code === code && item.price === price);
       if (existing) {
         existing.qty += qty;
+        if (image && !existing.image) existing.image = image;
       } else {
-        cart.push({ code, name, price, qty });
+        cart.push({ code, name, price, qty, image });
       }
 
       saveAndRenderCart();
 
+      // Reset entry form
       barcodeInput.value = '';
       nameInput.value = '';
       priceInput.value = '';
       qtyInput.value = 1;
-      statusMsg.textContent = 'Added "' + name + '" to cart.';
+      imageUrlInput.value = '';
+      itemPreview.style.display = 'none';
+      statusMsg.textContent = `Added "${name}" to receipt.`;
     });
 
     function removeItem(index) {
@@ -239,19 +561,19 @@
     }
 
     document.getElementById('clear-btn').addEventListener('click', () => {
-      if (confirm('Clear all items from cart?')) {
+      if (confirm('Clear all items from receipt?')) {
         cart = [];
         saveAndRenderCart();
       }
     });
 
     function saveAndRenderCart() {
-      localStorage.setItem('scanner_cart', JSON.stringify(cart));
+      localStorage.setItem('retro_scanner_cart', JSON.stringify(cart));
       const cartList = document.getElementById('cart-list');
       const totalEl = document.getElementById('cart-total');
 
       if (cart.length === 0) {
-        cartList.innerHTML = '<p style="color: #888; text-align: center; font-size: 0.9rem;">Cart is empty. Scan an item to begin.</p>';
+        cartList.innerHTML = '<p style="color: #7d6d53; text-align: center; font-size: 0.85rem;">Receipt is empty. Scan an item to begin.</p>';
         totalEl.textContent = '$0.00';
         return;
       }
@@ -260,35 +582,34 @@
       cartList.innerHTML = cart.map((item, idx) => {
         const subtotal = item.price * item.qty;
         total += subtotal;
+        const imgHtml = item.image
+          ? `<img class="cart-thumb" src="${item.image}" alt="${item.name}">`
+          : `<div class="cart-thumb-placeholder">NO<br>IMG</div>`;
+
         return `
           <div class="cart-item">
+            ${imgHtml}
             <div class="item-info">
-              <div class="item-name">${escapeHtml(item.name)}</div>
-              <div class="item-meta">$${item.price.toFixed(2)} &times; ${item.qty} = <strong>$${subtotal.toFixed(2)}</strong></div>
+              <div class="item-name">${item.name}</div>
+              <div class="item-meta">$${item.price.toFixed(2)} x ${item.qty} = <strong>$${subtotal.toFixed(2)}</strong></div>
             </div>
             <button class="danger" onclick="removeItem(${idx})">X</button>
           </div>
         `;
       }).join('');
 
-      totalEl.textContent = '$' + total.toFixed(2);
-    }
-
-    function escapeHtml(str) {
-      return str.replace(/[&<>"']/g, m => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-      }[m]));
+      totalEl.textContent = `$${total.toFixed(2)}`;
     }
 
     function playBeep() {
       try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = ctx.createOscillator();
-        osc.type = 'sine';
+        osc.type = 'square';
         osc.frequency.setValueAtTime(880, ctx.currentTime);
         osc.connect(ctx.destination);
         osc.start();
-        osc.stop(ctx.currentTime + 0.1);
+        osc.stop(ctx.currentTime + 0.09);
       } catch (e) {}
     }
 
